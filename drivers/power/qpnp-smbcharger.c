@@ -1922,6 +1922,7 @@ static int smbchg_set_high_usb_chg_current(struct smbchg_chip *chip,
 	}
 
 	usb_cur_val = i & USBIN_INPUT_MASK;
+	pr_smb(PR_MISC, "usb_cur_val=%d\n", usb_cur_val);
 	rc = smbchg_sec_masked_write(chip, chip->usb_chgpth_base + IL_CFG,
 			USBIN_INPUT_MASK, usb_cur_val);
 	if (rc < 0) {
@@ -1948,13 +1949,7 @@ static int smbchg_set_usb_current_max(struct smbchg_chip *chip,
 		int current_ma)
 {
 	int rc = 0;
-
 	pr_smb(PR_MISC, "current_ma=%d\n", current_ma);
-
-  // HACKS, breaks the OTG
-  /*current_ma = 1500;
-  chip->usb_supply_type = POWER_SUPPLY_TYPE_USB_DCP;
-	pr_smb(PR_MISC, "HACKS\n");*/
 
 	/*
 	 * if the battery is not present, do not allow the usb ICL to lower in
@@ -6928,8 +6923,8 @@ static irqreturn_t usbin_uv_handler(int irq, void *_chip)
 		goto out;
 
 	if ((reg & USBIN_UV_BIT) && (reg & USBIN_SRC_DET_BIT)) {
-    goto out;
 		pr_smb(PR_STATUS, "Very weak charger detected\n");
+    goto out;
 		chip->very_weak_charger = true;
 		rc = smbchg_read(chip, &reg,
 				chip->usb_chgpth_base + ICL_STS_2_REG, 1);
